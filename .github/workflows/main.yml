@@ -1,0 +1,37 @@
+name: Build NOVA SENSI APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract project
+        run: unzip -o NOVA_SENSI_Live_Database_Cloud_Build_v1_2.zip
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Build APK
+        working-directory: NOVA_SENSI
+        run: |
+          flutter create . --platforms=android
+          flutter pub get
+          flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NOVA-SENSI-APK
+          path: NOVA_SENSI/build/app/outputs/flutter-apk/app-release.apk
